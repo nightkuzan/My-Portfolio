@@ -10,6 +10,13 @@ import Resume from './components/Resume';
 import Contactme from './components/Contactme';
 
 class App extends React.Component {
+//  change page with state
+  constructor(props){
+    super(props);
+    this.state = {
+      page: 'home'
+    }
+  }
   render() {
     return (
         <BrowserRouter>
