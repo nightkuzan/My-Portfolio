@@ -3,7 +3,7 @@ import './NavbarStyles.css'
 import { useState } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-import { faBars, faTimes,faSmileWink } from '@fortawesome/free-solid-svg-icons'
+import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons'
 function Navbar(){
     const [click, setClick] = useState(false);
     const handleClick = () => setClick(!click);
@@ -11,7 +11,6 @@ function Navbar(){
         <nav className="NavbarItems">
             <h1 className="logo">
                 Portfolio
-                <FontAwesomeIcon icon={faSmileWink} className="logos" />
             </h1>
             <div className="menu-icons"
             onClick={handleClick}>
