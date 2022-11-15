@@ -1,15 +1,16 @@
 {
   "files": {
-    "main.css": "/static/css/main.ca807952.css",
-    "main.js": "/static/js/main.1fad72b3.js",
-    "static/js/787.5dd5a54c.chunk.js": "/static/js/787.5dd5a54c.chunk.js",
-    "index.html": "/index.html",
-    "main.ca807952.css.map": "/static/css/main.ca807952.css.map",
-    "main.1fad72b3.js.map": "/static/js/main.1fad72b3.js.map",
-    "787.5dd5a54c.chunk.js.map": "/static/js/787.5dd5a54c.chunk.js.map"
+    "main.css": "/nightkuzan/My-Portfolio/static/css/main.ade0e5d3.css",
+    "main.js": "/nightkuzan/My-Portfolio/static/js/main.45f2dc9e.js",
+    "static/js/787.5dd5a54c.chunk.js": "/nightkuzan/My-Portfolio/static/js/787.5dd5a54c.chunk.js",
+    "static/media/Resume 21 edit.png": "/nightkuzan/My-Portfolio/static/media/Resume 21 edit.c050debdd2b86a9e7f64.png",
+    "index.html": "/nightkuzan/My-Portfolio/index.html",
+    "main.ade0e5d3.css.map": "/nightkuzan/My-Portfolio/static/css/main.ade0e5d3.css.map",
+    "main.45f2dc9e.js.map": "/nightkuzan/My-Portfolio/static/js/main.45f2dc9e.js.map",
+    "787.5dd5a54c.chunk.js.map": "/nightkuzan/My-Portfolio/static/js/787.5dd5a54c.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.ca807952.css",
-    "static/js/main.1fad72b3.js"
+    "static/css/main.ade0e5d3.css",
+    "static/js/main.45f2dc9e.js"
   ]
 }
