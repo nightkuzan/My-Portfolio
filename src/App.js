@@ -1,20 +1,20 @@
-import './App.css';
-import { BrowserRouter,Routes,Route } from 'react-router-dom';
 import React from 'react';
+import { HashRouter, Route, Routes } from 'react-router-dom';
+import './App.css';
 
 // components
 import Aboutme from './components/Aboutme';
-import Home from './components/Home'
+import Contactme from './components/Contactme';
+import Home from './components/Home';
 import Navbar from './components/Navbar';
 import Resume from './components/Resume';
-import Contactme from './components/Contactme';
 
 class App extends React.Component {
 //  change page with state
  
   render() {
     return (
-        <BrowserRouter>
+      <>
         <Navbar />
         <Routes>
           <Route path="/" element={<Home/>}/>
@@ -22,8 +22,7 @@ class App extends React.Component {
           <Route path="/resume" element={<Resume/>}/>
           <Route path="/contactme" element={<Contactme/>}/>
         </Routes>
-      </BrowserRouter>
-
+      </>
     );
   }
 }
