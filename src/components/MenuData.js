@@ -15,6 +15,11 @@ export const MenuData = [
         cName: 'nav-links',
     },
     {
+        title: 'Resume',
+        path: '/resume',
+        cName: 'nav-links',
+    },
+    {
         title: 'Contact me',
         path: '/contactme',
         cName: 'nav-links',

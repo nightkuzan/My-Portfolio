@@ -6,10 +6,10 @@ import React from 'react';
 import Aboutme from './components/Aboutme';
 import Home from './components/Home'
 import Navbar from './components/Navbar';
+import Resume from './components/Resume';
+import Contactme from './components/Contactme';
 
 class App extends React.Component {
-
-
   render() {
     return (
         <BrowserRouter>
@@ -17,6 +17,8 @@ class App extends React.Component {
         <Routes>
           <Route path="/" element={<Home/>}/>
           <Route path="/aboutme" element={<Aboutme/>}/>
+          <Route path="/resume" element={<Resume/>}/>
+          <Route path="/contactme" element={<Contactme/>}/>
         </Routes>
       </BrowserRouter>
 
