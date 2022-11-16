@@ -8,6 +8,7 @@ import Contactme from './components/Contactme';
 import Home from './components/Home';
 import Navbar from './components/Navbar';
 import Resume from './components/Resume';
+import SkillnExp from './components/SkillnExp';
 
 class App extends React.Component {
  
@@ -17,9 +18,10 @@ class App extends React.Component {
         <Navbar />
         <Routes>
           <Route exact path="/" element={<Home />} />
-          <Route path="/aboutme" element={<Aboutme />} />
-          <Route path="/resume" element={<Resume />} />
+          <Route path="My-Portfolio/aboutme" element={<Aboutme />} />
+          <Route path="My-Portfolio/resume" element={<Resume />} />
           <Route path="/contactme" element={<Contactme />} />
+          <Route path="/myskills" element={<SkillnExp />} />
         </Routes>
       </>
     );

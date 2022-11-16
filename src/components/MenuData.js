@@ -6,7 +6,7 @@ export const MenuData = [
     },
     {
         title: 'About me',
-        path: '/aboutme',
+        path: 'My-Portfolio/aboutme',
         cName: 'nav-links',
     },
     {
@@ -16,12 +16,17 @@ export const MenuData = [
     },
     {
         title: 'Resume',
-        path: '/resume',
+        path: 'My-Portfolio/resume',
         cName: 'nav-links',
     },
     {
         title: 'Contact me',
         path: '/contactme',
+        cName: 'nav-links',
+    },
+    {
+        title: 'My-Skills',
+        path: '/myskills',
         cName: 'nav-links',
     }
 ];
