@@ -1,7 +1,6 @@
 {
   "name": "nixht-portfolio",
   "version": "0.1.0",
-  "homepage": "https://nightkuzan.github.io/My-Portfolio/",
   
   "private": true,
   "dependencies": {

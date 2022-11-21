@@ -1,6 +1,5 @@
 import React from 'react';
 import './App.css';
-import { Routes } from 'react-router-dom';
 // components
 import Aboutme from './components/Aboutme';
 import Contactme from './components/Contactme';
@@ -20,7 +19,6 @@ class App extends React.Component {
       <Skills/> 
       <Resume/>
       <Contactme/>
-      
       </>
     );
   }
