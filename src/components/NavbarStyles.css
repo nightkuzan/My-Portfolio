@@ -5,7 +5,7 @@
     font-size: 1.2rem;
     padding:0 30px;
     background-color: #222;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.25);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.75);
     width:90%;
     height: 80px;
     border-radius: 13px;
@@ -13,8 +13,31 @@
     top: 20px;
     left: 50%;
     transform: translate(-50%);
-
+    transition-timing-function: ease-out;
+    transition:0.5s;
 }
+.Navhide{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.2rem;
+    padding:0 30px;
+    background-color: #222;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.75);
+    width:90%;
+    height: 80px;
+    border-radius: 13px;
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translate(-50%);
+    transition-timing-function: ease-in;
+    transition: 0.5s;
+    opacity: 0;
+}
+
+
+
 
 .logo{
     color: #fff;
@@ -60,6 +83,7 @@
     display: none;
 }
 
+
 @media screen and (max-width: 850px){
     .NavbarItems{
         z-index:99;
@@ -68,7 +92,7 @@
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
-        background: rgba(255,255,255,.25);
+        background: rgba(255, 255, 255, 0.457);
         box-shadow: 0 8px 32px 0 rgba(31,38,135,.37);
         backdrop-filter: blur(4px);
         border-radius: 13px;

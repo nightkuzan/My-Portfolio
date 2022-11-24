@@ -9,6 +9,7 @@
     margin: 0 auto;
     width: 100%;
     text-align: center;
+    /* height: 100vh; */
 }
 
 .contact-me{
@@ -77,4 +78,140 @@ input:focus,textarea:focus{
 
 .btn-contact{
     text-decoration: none;
+}
+.skillsGrid{
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin: 0 auto;
+    width: 100%;
+    text-align: center;
+}
+.skill{
+    display: grid;
+    grid-template-columns: repeat(4,auto);
+    grid-gap: 20px;
+    border:1px solid #000;
+    padding:25px;
+    background-color: rgb(85, 128, 128);
+    box-shadow: 0px 0px 15px 0px rgba(0,0,0,0.75);
+    max-width: 700px;
+    margin: 0 auto;
+    border-radius: 15px;
+}
+#home{
+    height: 100vh;
+    padding:80px;
+}
+.aboutme{
+    height: 100vh;
+    padding-top: 60px;
+}
+.skills{
+    height: 100vh;
+}
+
+#contactme{
+    height: 100vh;
+}
+
+.mg{
+    margin-top: 100px;
+    border: 1px solid #403f3f;
+}
+
+
+
+.container{
+    margin: 0 auto;
+    width: 100%;
+    text-align: center;
+}
+
+/* add animation to title */
+@import url('https://fonts.googleapis.com/css2?family=Rubik+Microbe&display=swap');
+.home-title{
+    font-family: 'Rubik Microbe', cursive;
+    animation: home-title 1s ease-in-out;
+    animation-fill-mode: forwards;
+    opacity: 0;
+    font-size: 70px;
+}
+@keyframes home-title{
+    0%{
+        opacity: 0;
+        transform: translateY(100px);
+    }
+    100%{
+        opacity: 1;
+        transform: translateY(0px);
+    }
+}
+
+.home-subtitle{
+    font-family: 'Rubik Microbe', cursive;
+    animation: home-subtitle 1s ease-in-out;
+    animation-fill-mode: forwards;
+    opacity: 0;
+    font-size: 30px;
+}
+@keyframes home-subtitle{
+    0%{
+        opacity: 0;
+        transform: translateY(100px);
+    }
+    100%{
+        opacity: 1;
+        transform: translateY(0px);
+    }
+}
+
+.home-detail{
+    font-family: 'Rubik Microbe', cursive;
+    animation: home-detail 1s ease-in-out;
+    animation-fill-mode: forwards;
+    opacity: 0;
+    font-size: 20px;
+    font-weight: bold;
+
+}
+@keyframes home-detail{
+    0%{
+        opacity: 0;
+        transform: translateY(100px);
+    }
+    100%{
+        opacity: 1;
+        transform: translateY(0px);
+    }
+}
+
+.home-btn{
+    animation: home-btn 1s ease-in-out;
+    animation-fill-mode: forwards;
+    opacity: 0;
+    font-size: 20px;
+    font-weight: bold;
+    margin-top: 30px;
+}
+@keyframes home-btn{
+    0%{
+        opacity: 0;
+        transform: translateY(100px);
+    }
+    100%{
+        opacity: 1;
+        transform: translateY(0px);
+    }
+}
+.aboutme-content-card{
+   border: 1px solid #000;
+   max-width: 700px;
+    margin: 0 auto;
+    border-radius: 15px;
+    padding: 20px;
+
+    background-color: rgb(89, 83, 83);
+    box-shadow: 0px 0px 15px 0px rgba(0,0,0,0.75);
+    margin-top:20px;
 }

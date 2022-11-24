@@ -1,10 +1,20 @@
-import Skill from './Skill'
-
+import { SkillData } from "./SkillData"
+import './mg-top.css'
 function Skills() {
+       
     return (
-        <div className="skills af-nav">
+        <div className="skills af-nav" id="myskills">
                 <h2>I have experience with these technologies</h2>
             <div className="skillsGrid">
+                <div className="skill">
+                    {SkillData.map((item, index) => {
+                        return(
+                            <div key={index}>
+                                <img src={item.source} alt={item.alt} />
+                            </div>
+                        )
+                    })}
+                </div>
             </div>            
         </div>
     )

@@ -2,32 +2,32 @@ import {FaGithubAlt} from 'react-icons/fa'
 export const MenuData = [
     {
         title: 'Home',
-        path: '/',
+        path: '#home',
         cName: 'nav-links',
     },
     {
         title: 'About me',
-        path: 'My-Portfolio/aboutme',
+        path: '#aboutme',
         cName: 'nav-links',
     },
     {
         title: 'Projects',
-        path: '/projects',
+        path: '#projects',
         cName: 'nav-links',
     },
     {
         title: 'Resume',
-        path: 'My-Portfolio/resume',
+        path: '#resume',
         cName: 'nav-links',
     },
     {
         title: 'Contact me',
-        path: '/contactme',
+        path: '#contactme',
         cName: 'nav-links',
     },
     {
         title: 'My-Skills',
-        path: '/myskills',
+        path: '#myskills',
         cName: 'nav-links',
     },
     {
