@@ -41,11 +41,12 @@ const Contactme = () => {
         <div className="contact-me">
               <div className="contact-me-left">
                 <h1 className="contact-me-title">Contact Me</h1>
-                <span className="contact-me-subtitle">
+                <br/>
+                <p className="contact-me-subtitle">
                   Have any questions?
                   <br/> 
                   Feel free to contact me.
-              </span>
+              </p>
             </div>
           <form ref={form} onSubmit={sendEmail}>
             <div className="row pt-5 mx-auto">
@@ -84,6 +85,7 @@ const Contactme = () => {
                   rows="8"
                   placeholder="Your message*"
                   name="message"
+                  spellCheck="false"
                   required
                 ></textarea>
               </div>

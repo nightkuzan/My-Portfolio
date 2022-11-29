@@ -32,8 +32,8 @@ function Navbar(){
         <nav className=
            
          { show ? "Navhide" : "NavbarItems"}>
-            <h1 className="logo">
-                Portfolio
+            <h1 >
+                <a href="/My-Portfolio" className="nav-linkss">Portfolio</a>
             </h1>
             <div className="menu-icons"
             onClick={handleClick}>
@@ -44,7 +44,7 @@ function Navbar(){
                     return(
                         <li key={index}>
                             <a className={item.cName} href={item.path}
-                                >                      
+                            onClick={() => setClick(false)}>
           {item.title}
                             </a>
                         </li>

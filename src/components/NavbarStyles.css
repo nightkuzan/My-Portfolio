@@ -33,7 +33,7 @@
     transform: translate(-50%);
     transition-timing-function: ease-in;
     transition: 0.5s;
-    opacity: 0;
+    margin-top: -1000px;
 }
 
 
@@ -62,8 +62,17 @@
     color: #fff;
     padding: 0.7rem 1rem;
     white-space: nowrap;
+    /* font  */
+    font-size: 1.2rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
 }
-
+.nav-linkss{
+    text-decoration: none;
+    color: #fff;
+    padding: 0.7rem 1rem;
+    white-space: nowrap;
+}
 .nav-links i{
     padding-right: 10px;
 }

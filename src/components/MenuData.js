@@ -21,15 +21,16 @@ export const MenuData = [
         cName: 'nav-links',
     },
     {
-        title: 'Contact me',
-        path: '#contactme',
-        cName: 'nav-links',
-    },
-    {
         title: 'My-Skills',
         path: '#myskills',
         cName: 'nav-links',
     },
+    {
+        title: 'Contact me',
+        path: '#contactme',
+        cName: 'nav-links',
+    },
+   
     {
         title: <FaGithubAlt/>,
         path: 'https://github.com/nightkuzan/',

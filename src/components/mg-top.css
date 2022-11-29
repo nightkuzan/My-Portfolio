@@ -78,6 +78,16 @@ input:focus,textarea:focus{
 
 .btn-contact{
     text-decoration: none;
+    color: #fff;
+    font-size: 20px;
+    font-weight: 600;
+    padding: 10px 20px;
+    border: 1px solid #000;
+    border-radius: 10px;
+    background: #000;
+    margin-top: 10px;
+    /* font */
+    font-family: 'Poppins', sans-serif;
 }
 .skillsGrid{
     display: flex;
@@ -92,20 +102,35 @@ input:focus,textarea:focus{
     grid-template-columns: repeat(4,auto);
     grid-gap: 20px;
     border:1px solid #000;
-    padding:25px;
+    padding:50px;
     background-color: rgb(85, 128, 128);
     box-shadow: 0px 0px 15px 0px rgba(0,0,0,0.75);
     max-width: 700px;
     margin: 0 auto;
     border-radius: 15px;
 }
+
 #home{
     height: 100vh;
-    padding:80px;
+    padding:100px;
 }
 .aboutme{
     height: 100vh;
     padding-top: 60px;
+    /* font rubik microbe*/
+    font-family: 'Rubik Microbe', cursive;
+}
+.aboutme-content-text{
+    font-size: 20pt;
+    font-weight: 600;
+    color: #fff;
+    text-align: center;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 700px;
+    /* font  */
+    font-family: 'Poppins', sans-serif;
+    padding:10px;
 }
 .skills{
     height: 100vh;
@@ -113,12 +138,10 @@ input:focus,textarea:focus{
 
 #contactme{
     height: 100vh;
+    /* font */
+    
 }
 
-.mg{
-    margin-top: 100px;
-    border: 1px solid #403f3f;
-}
 
 
 
@@ -126,6 +149,20 @@ input:focus,textarea:focus{
     margin: 0 auto;
     width: 100%;
     text-align: center;
+}
+
+.cursor{
+    position: absolute;
+    background: url('../assets/piqd4jMyT.gif') no-repeat 50% 50%;
+    background-size: cover;
+    width: 100px;
+    height: 100px;
+    mix-blend-mode: difference;
+    z-index: 2;
+    pointer-events: none;
+    transform: translate(5px, 5px);
+    user-select: select;
+
 }
 
 /* add animation to title */
@@ -215,3 +252,188 @@ input:focus,textarea:focus{
     box-shadow: 0px 0px 15px 0px rgba(0,0,0,0.75);
     margin-top:20px;
 }
+
+
+
+
+
+.resume{
+    /* font rubik microbe */
+    font-family: 'Rubik Microbe', cursive;
+    font-size: 50px;
+    padding:10px;
+
+}
+
+.rs-img{
+    box-shadow: 0px 0px 15px 0px rgba(0,0,0,0.75);
+    border-radius: 15px;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 700px;
+    margin-top: 20px;
+}
+
+.contact-me{
+    box-shadow: 0px 0px 15px 0px rgba(0,0,0,0.75);
+}
+.skill-detail{
+    font-family: 'Rubik Microbe', cursive;
+    font-size: 30px;
+    padding:10px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+.skills{
+    padding: 120px;
+}
+
+
+.contact-me{
+    max-width: 700px;
+}
+
+textarea{
+    width: 870px;
+    height: 100px;
+    border: 1px solid #000;
+    border-radius: 5px;
+    padding: 10px;
+    margin-top: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    text-rendering: auto;
+    letter-spacing: normal;
+    word-spacing: normal;
+    text-transform: none;
+    text-indent: 0px;
+    text-shadow: none;
+    display: inline-block;
+    text-align: start;
+    -webkit-rtl-ordering: logical;
+    resize: auto;
+    cursor: text;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    column-count: initial !important;
+}
+input{
+    font-weight: 600;
+    font-size: 15px;
+    
+}
+
+/* responsive aboutme */
+@media screen and (max-width: 480px){
+    .aboutme-content-card{
+        max-width: 100%;
+        margin:20px;
+        padding:15px;
+    }
+    .aboutme-content-text{
+        font-size: 12px;
+    }
+    .skill-detail{
+        font-size: 20px;
+        padding:0px;
+    }
+    .skills{
+        padding:10px;
+    }
+}
+@media screen and (max-width: 480px){
+    .contact-me{
+        flex-direction: column;
+        margin:20px;
+    }
+    .contact-me-left{
+        width: 100%;
+        margin-right: 0;
+    }
+    .contact-me-right{
+        width: 100%;
+    }
+    .resume{
+        font-size: 30px;
+    }
+    .resume-content{
+        margin:20px;
+    }
+    .contact-me-subtitle{
+        margin-bottom:20px;
+    }
+    .rs{
+        height:100vh;
+    }
+    
+}
+@media screen and (max-width: 768px){
+    .contact-me{
+        flex-direction: column;
+    }
+    .contact-me-left{
+        width: 100%;
+        margin-right: 0;
+    }
+    .contact-me-right{
+        width: 100%;
+    }
+}
+
+/* Responsive font */
+@media screen and (max-width: 768px){
+    .home-title{
+        font-size: 50px;
+    }
+    .home-subtitle{
+        font-size: 20px;
+    }
+    .home-detail{
+        font-size: 15px;
+    }
+    .home-btn{
+        font-size: 15px;
+    }
+    .aboutme-content-card{
+        max-width: 100%;
+    }
+    .contact-me{
+        flex-direction: column;
+    }
+    .contact-me-left{
+        width: 100%;
+        margin-right: 0;
+    }
+    .contact-me-right{
+        width: 100%;
+    }
+    .skillsGrid{
+        justify-content: center;
+    }
+    .skill{
+        grid-template-columns: repeat(2,auto);
+    }
+    .skill .skill-title{
+        grid-column: 1/3;
+    }
+}
+
+@media screen and (max-width: 480px){
+    .home-title{
+        font-size: 40px;
+    }
+    .home-subtitle{
+        font-size: 15px;
+    }
+    .home-detail{
+        font-size: 10px;
+    }
+    .home-btn{
+        font-size: 10px;
+    }
+    
+}
+
+
+

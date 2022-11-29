@@ -8,7 +8,11 @@ function Aboutme(){
                     <div className='aboutme-content-card'>
                         <div className='aboutme-content'>
                             <p className='aboutme-content-text'>
-                                I am a full stack developer with a passion for creating beautiful and functional websites. I have a background in graphic design and a degree in computer science. I am currently working as a freelance developer and am looking for new opportunities.
+                                I'm a Full Stack Web Developer located in Chiang Mai, Thailand. 
+                                I have a passion for creating beautiful and functional websites. 
+                                I am studying bachelor degree in computer science.
+                                I'm current a freelance web developer and I'm always looking for new projects. 
+                                If you have a project that you would like to get started, feel free to contact me.
                             </p>
                         </div>
                     </div>
