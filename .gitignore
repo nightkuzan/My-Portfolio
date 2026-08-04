@@ -25,3 +25,4 @@ yarn.lock
 node_modules/
 dist/
 preview.log
+tsconfig.tsbuildinfo
