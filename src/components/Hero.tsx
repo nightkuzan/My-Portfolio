@@ -1,19 +1,12 @@
-import { useEffect, useRef } from 'react'
-import { mountField } from '../webgl/field'
 import { profile } from '../data'
 
+/**
+ * Hero copy only — the imagery behind it is the shared 3D stage, so this
+ * component stays a plain, accessible block of text.
+ */
 export default function Hero() {
-  const canvas = useRef<HTMLCanvasElement>(null)
-
-  useEffect(() => {
-    if (!canvas.current) return
-    return mountField(canvas.current)
-  }, [])
-
   return (
     <header className="hero" id="top">
-      <canvas className="hero-canvas" ref={canvas} aria-hidden="true" />
-
       <div className="hero-inner">
         <p className="hero-eyebrow">
           {profile.role} · {profile.company} · {profile.location}
@@ -44,7 +37,7 @@ export default function Hero() {
 
       <div className="hero-scroll" aria-hidden="true">
         <i />
-        Scroll
+        Scroll to dive
       </div>
     </header>
   )

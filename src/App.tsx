@@ -1,6 +1,9 @@
+import { useState } from 'react'
 import Cursor from './components/Cursor'
+import Dive from './components/Dive'
 import Hero from './components/Hero'
 import { About, Contact, Projects, Stack, Work } from './components/Sections'
+import Experience from './river/Experience'
 import { profile } from './data'
 import { useScrolled } from './hooks'
 
@@ -14,37 +17,44 @@ const NAV = [
 
 export default function App() {
   const stuck = useScrolled(60)
+  const [entered, setEntered] = useState(false)
 
   return (
     <>
       <Cursor />
+      <Experience onEntered={() => setEntered(true)} />
 
-      <nav className={`nav${stuck ? ' is-stuck' : ''}`}>
-        <a className="nav-mark" href="#top">
-          AS<span>.</span>
-        </a>
-        <div className="nav-links">
-          {NAV.map(([label, href]) => (
-            <a key={href} href={href}>
-              {label}
-            </a>
-          ))}
-        </div>
-      </nav>
+      <div className={`page${entered ? ' is-in' : ''}`}>
+        <nav className={`nav${stuck ? ' is-stuck' : ''}`}>
+          <a className="nav-mark" href="#top">
+            AS<span>.</span>
+          </a>
+          <div className="nav-links">
+            {NAV.map(([label, href]) => (
+              <a key={href} href={href}>
+                {label}
+              </a>
+            ))}
+          </div>
+        </nav>
 
-      <main>
-        <Hero />
-        <About />
-        <Work />
-        <Projects />
-        <Stack />
-        <Contact />
-      </main>
+        <main>
+          <Hero />
+          <Dive />
+          <About />
+          <Work />
+          <Projects />
+          <Stack />
+          <Contact />
+        </main>
 
-      <footer className="foot">
-        <span>© {new Date().getFullYear()} {profile.name}</span>
-        <span>Built with React, Vite and a hand-written WebGL shader</span>
-      </footer>
+        <footer className="foot">
+          <span>
+            © {new Date().getFullYear()} {profile.name}
+          </span>
+          <span>React · three.js · a river of stars</span>
+        </footer>
+      </div>
     </>
   )
 }
