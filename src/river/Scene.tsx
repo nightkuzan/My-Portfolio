@@ -3,8 +3,20 @@ import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import Water from './Water'
 import Sky from './Sky'
+import Motes from './Motes'
 import Otter from './Otter'
 import { sampleWater } from './waves'
+
+/**
+ * Ramp 0 -> 1 as `x` falls from `from` down to `to`.
+ *
+ * THREE.MathUtils.smoothstep assumes min < max: handed a descending range
+ * it takes the `x >= max` branch and returns 1 for everything, which put
+ * the hero into deep-space shading while the camera was still in daylight.
+ */
+function descend(x: number, from: number, to: number) {
+  return THREE.MathUtils.smoothstep(from - x, 0, from - to)
+}
 
 /** Starfield that only earns its keep once we are under the surface. */
 function Stars({ count = 2600 }: { count?: number }) {
@@ -174,24 +186,28 @@ export default function Scene({
     // One continuous dive: above the water, through it, out into the dark.
     // Held low enough at the start that the horizon stays in frame — a
     // steep top-down view of a wave field has no horizon and reads flat.
-    const dive = THREE.MathUtils.smoothstep(s, 0, 1)
+    //
+    // The descent only begins once the hero has scrolled away (the hero is
+    // one viewport of a 2.6-viewport range). Starting at zero put the camera
+    // underwater while the headline was still on screen.
+    const dive = THREE.MathUtils.smoothstep(s, 0.36, 1)
     camera.position.set(
       pointer.current.x * 1.6,
-      THREE.MathUtils.lerp(2.8, -30, dive) + pointer.current.y * 0.5,
-      THREE.MathUtils.lerp(12, 4, s),
+      THREE.MathUtils.lerp(2.8, -32, dive) + pointer.current.y * 0.5,
+      THREE.MathUtils.lerp(12, 4, dive),
     )
     camera.lookAt(
       pointer.current.x * 0.8,
-      THREE.MathUtils.lerp(1.5, -38, THREE.MathUtils.smoothstep(s, 0.06, 1)),
-      THREE.MathUtils.lerp(-20, -10, s),
+      THREE.MathUtils.lerp(1.5, -40, THREE.MathUtils.smoothstep(s, 0.38, 1)),
+      THREE.MathUtils.lerp(-20, -10, dive),
     )
 
     // Both looks are driven by where the camera actually is, not by scroll
     // position. Tied to scroll they drift out of sync with the geometry and
     // you get daylight sky visible from ten metres underwater.
     const camY = camera.position.y
-    const under = THREE.MathUtils.smoothstep(camY, 0.8, -2.5)
-    const deep = THREE.MathUtils.smoothstep(camY, -4, -17)
+    const under = descend(camY, 0.8, -2.5)
+    const deep = descend(camY, -4, -17)
     space.current = deep
     submerged.current = under * (1 - deep)
 
@@ -220,6 +236,7 @@ export default function Scene({
       <Sky spaceRef={space} submergedRef={submerged} />
       <Water spaceRef={space} />
       <Stars />
+      <Motes submergedRef={submerged} />
 
       {/* Kept to the right half of the frame: the hero copy owns the left,
           and an otter drifting behind body text helps nobody. Sized so the
