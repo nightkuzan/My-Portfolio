@@ -1,6 +1,7 @@
 import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
+import { sceneTime } from './quality'
 
 /**
  * A river otter, modelled in code rather than loaded from a file.
@@ -52,7 +53,7 @@ export default function Otter({
   // Idle life: a slow breath in the chest and a lazy paw drift. Without this
   // the otter reads as a prop instead of an animal.
   useFrame(({ clock }) => {
-    const t = clock.elapsedTime + phase
+    const t = sceneTime(clock.elapsedTime) + phase
     if (group.current) {
       group.current.rotation.z = rotation[2] + Math.sin(t * 0.5) * 0.05
     }

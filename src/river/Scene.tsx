@@ -6,6 +6,7 @@ import Sky from './Sky'
 import Motes from './Motes'
 import Otter from './Otter'
 import { sampleWater } from './waves'
+import { quality, reducedMotion, sceneTime } from './quality'
 
 /**
  * Ramp 0 -> 1 as `x` falls from `from` down to `to`.
@@ -19,7 +20,7 @@ function descend(x: number, from: number, to: number) {
 }
 
 /** Starfield that only earns its keep once we are under the surface. */
-function Stars({ count = 2600 }: { count?: number }) {
+function Stars({ count = quality.stars }: { count?: number }) {
   const pts = useRef<THREE.Points>(null)
 
   const geo = useMemo(() => {
@@ -84,8 +85,8 @@ function Stars({ count = 2600 }: { count?: number }) {
   )
 
   useFrame(({ clock }) => {
-    mat.uniforms.uTime.value = clock.elapsedTime
-    if (pts.current) pts.current.rotation.y = clock.elapsedTime * 0.008
+    mat.uniforms.uTime.value = sceneTime(clock.elapsedTime)
+    if (pts.current) pts.current.rotation.y = sceneTime(clock.elapsedTime) * 0.008
   })
 
   return <points ref={pts} geometry={geo} material={mat} />
@@ -106,7 +107,7 @@ function SurfaceOtter({
   const g = useRef<THREE.Group>(null)
   useFrame(({ clock }) => {
     if (!g.current) return
-    const t = clock.elapsedTime
+    const t = sceneTime(clock.elapsedTime)
     // Drift slowly downstream, wrapping so the river never runs out.
     const dz = ((z + t * 0.5 + 60) % 120) - 60
     const s = sampleWater(x, dz, t)
@@ -136,7 +137,7 @@ function DriftOtter({
   const g = useRef<THREE.Group>(null)
   useFrame(({ clock }) => {
     if (!g.current) return
-    const t = clock.elapsedTime + phase
+    const t = sceneTime(clock.elapsedTime) + phase
     g.current.position.set(
       base[0] + Math.sin(t * 0.18) * 1.4,
       base[1] + Math.sin(t * 0.24) * 1.1,
@@ -158,7 +159,19 @@ export default function Scene({
   progress: React.MutableRefObject<number>
   onReady?: () => void
 }) {
-  const { camera } = useThree()
+  const { camera, size } = useThree()
+
+  /**
+   * Composition has to answer to the viewport shape, not just its width.
+   * The layout puts copy on the left and otters on the right, which only
+   * works while the frame is wide. On a phone the same placement pushes
+   * every otter off the edge, so pull them back toward centre and give the
+   * camera more distance.
+   */
+  const aspect = size.width / Math.max(size.height, 1)
+  const narrow = THREE.MathUtils.clamp((1.5 - aspect) / 0.9, 0, 1)
+  const spread = THREE.MathUtils.lerp(1, 0.4, narrow)
+  const pullBack = THREE.MathUtils.lerp(0, 5.5, narrow)
   const space = useRef(0)
   const submerged = useRef(0)
   const announced = useRef(false)
@@ -177,9 +190,13 @@ export default function Scene({
       announced.current = true
       onReady?.()
     }
+    // Pointer parallax is motion the visitor did not ask for, so it is the
+    // first thing to go when they have said they would rather not have it.
     const t = Math.min(dt, 0.05)
-    pointer.current.x += (p.x - pointer.current.x) * 3 * t
-    pointer.current.y += (p.y - pointer.current.y) * 3 * t
+    const px = reducedMotion ? 0 : p.x
+    const py = reducedMotion ? 0 : p.y
+    pointer.current.x += (px - pointer.current.x) * 3 * t
+    pointer.current.y += (py - pointer.current.y) * 3 * t
 
     const s = progress.current
 
@@ -194,7 +211,7 @@ export default function Scene({
     camera.position.set(
       pointer.current.x * 1.6,
       THREE.MathUtils.lerp(2.8, -32, dive) + pointer.current.y * 0.5,
-      THREE.MathUtils.lerp(12, 4, dive),
+      THREE.MathUtils.lerp(12, 4, dive) + pullBack,
     )
     camera.lookAt(
       pointer.current.x * 0.8,
@@ -241,13 +258,17 @@ export default function Scene({
       {/* Kept to the right half of the frame: the hero copy owns the left,
           and an otter drifting behind body text helps nobody. Sized so the
           nearest one reads clearly without being cropped by the viewport. */}
-      <SurfaceOtter x={5.6} z={-2} phase={0} scale={1.6} />
-      <SurfaceOtter x={9.5} z={-11} phase={1.7} scale={1.3} />
-      <SurfaceOtter x={3.2} z={-20} phase={3.1} scale={1.1} />
+      <SurfaceOtter x={5.6 * spread} z={-2} phase={0} scale={1.6} />
+      <SurfaceOtter x={9.5 * spread} z={-11} phase={1.7} scale={1.3} />
+      {quality.surfaceOtters > 2 && (
+        <SurfaceOtter x={3.2 * spread} z={-20} phase={3.1} scale={1.1} />
+      )}
 
-      <DriftOtter base={[-6, -22, -6]} phase={0.4} scale={2.2} />
-      <DriftOtter base={[7, -33, -12]} phase={2.2} scale={1.6} />
-      <DriftOtter base={[-2, -48, -18]} phase={4.1} scale={2.8} />
+      <DriftOtter base={[-6 * spread, -22, -6]} phase={0.4} scale={2.2} />
+      <DriftOtter base={[7 * spread, -33, -12]} phase={2.2} scale={1.6} />
+      {quality.driftOtters > 2 && (
+        <DriftOtter base={[-2 * spread, -48, -18]} phase={4.1} scale={2.8} />
+      )}
     </>
   )
 }

@@ -84,10 +84,10 @@ export default function Experience({ onEntered }: { onEntered: () => void }) {
   useEffect(() => {
     if (!entered) return
     const onScroll = () => {
-      // The descent is mapped to the hero plus the dive section (100svh +
-      // 190svh). It finishes exactly as the first content section arrives,
-      // so the camera is already deep in space by the time copy appears.
-      const span = window.innerHeight * 2.6
+      // The descent is mapped to the hero plus the dive section. That
+      // section is shorter on narrow screens, so the range has to match or
+      // the camera arrives in space long after the captions have gone.
+      const span = window.innerHeight * (window.innerWidth <= 820 ? 2.2 : 2.6)
       progress.current = Math.min(1, Math.max(0, window.scrollY / span))
     }
     onScroll()

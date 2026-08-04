@@ -1,6 +1,7 @@
 import { Suspense, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
 import Scene from './Scene'
+import { quality } from './quality'
 
 /**
  * Everything that touches three.js lives behind this module boundary, so
@@ -28,7 +29,7 @@ export default function Stage({
 
   return (
     <Canvas
-      dpr={[1, 1.75]}
+      dpr={quality.dpr}
       gl={{ antialias: true, powerPreference: 'high-performance' }}
       camera={{ fov: 42, near: 0.1, far: 400, position: [0, 3.4, 9.5] }}
       resize={{ scroll: false, debounce: { scroll: 0, resize: 0 } }}

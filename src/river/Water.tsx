@@ -2,6 +2,7 @@ import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { WAVES, WAVE_GLSL } from './waves'
+import { quality, sceneTime } from './quality'
 
 /**
  * The river surface. One Gerstner-displaced plane, shaded twice over:
@@ -50,7 +51,7 @@ export default function Water({
 
   useFrame(({ clock }) => {
     if (!mat.current) return
-    mat.current.uniforms.uTime.value = clock.elapsedTime
+    mat.current.uniforms.uTime.value = sceneTime(clock.elapsedTime)
     mat.current.uniforms.uSpace.value = spaceRef.current
   })
 
@@ -200,7 +201,14 @@ export default function Water({
 
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
-      <planeGeometry args={[260, 260, 220, 220]} />
+      <planeGeometry
+        args={[
+          quality.waterSize,
+          quality.waterSize,
+          quality.waterSegments,
+          quality.waterSegments,
+        ]}
+      />
       <shaderMaterial
         ref={mat}
         uniforms={uniforms}

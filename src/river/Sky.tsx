@@ -1,6 +1,7 @@
 import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
+import { sceneTime } from './quality'
 
 /**
  * Sky dome. Without one the water plane runs edge to edge and the shot has
@@ -40,7 +41,7 @@ export default function Sky({
 
   useFrame(({ clock, camera }) => {
     if (!mat.current) return
-    mat.current.uniforms.uTime.value = clock.elapsedTime
+    mat.current.uniforms.uTime.value = sceneTime(clock.elapsedTime)
     mat.current.uniforms.uSpace.value = spaceRef.current
     mat.current.uniforms.uSubmerged.value = submergedRef.current
     // Ride with the camera. Anchored at the origin, the dome's idea of

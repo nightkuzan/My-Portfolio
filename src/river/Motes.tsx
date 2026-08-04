@@ -1,6 +1,7 @@
 import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
+import { quality, sceneTime } from './quality'
 
 /**
  * Drifting motes: pollen over the river, silt and bubbles once you are
@@ -15,7 +16,7 @@ import * as THREE from 'three'
  * per-particle draw calls.
  */
 export default function Motes({
-  count = 700,
+  count = quality.motes,
   submergedRef,
 }: {
   count?: number
@@ -53,7 +54,7 @@ export default function Motes({
 
   useFrame(({ clock }) => {
     if (!mat.current) return
-    mat.current.uniforms.uTime.value = clock.elapsedTime
+    mat.current.uniforms.uTime.value = sceneTime(clock.elapsedTime)
     mat.current.uniforms.uSubmerged.value = submergedRef.current
   })
 
