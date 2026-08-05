@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useI18n } from '../i18n'
 
 /**
  * The stretch of page the dive owns.
@@ -8,15 +9,12 @@ import { useEffect, useRef, useState } from 'react'
  * covering it. Each caption fades in and out across its own slice of the
  * section, so the sequence reads as narration rather than as a wall of text.
  */
-const BEATS = [
-  { at: 0.16, text: 'Most of a product is the part you never see.' },
-  { at: 0.48, text: 'Queues that back up. Indexes that were never created.' },
-  { at: 0.8, text: 'That is the layer I work in.' },
-]
+const BEATS = [0.16, 0.48, 0.8]
 
 export default function Dive() {
   const ref = useRef<HTMLElement>(null)
   const [p, setP] = useState(0)
+  const { t } = useI18n()
 
   useEffect(() => {
     const onScroll = () => {
@@ -39,21 +37,21 @@ export default function Dive() {
   return (
     <section className="dive" ref={ref} aria-label="Descending">
       <div className="dive-stick">
-        {BEATS.map((b) => {
+        {BEATS.map((at, i) => {
           // Triangular fade centred on the beat: in, hold, out.
-          const d = Math.abs(p - b.at)
+          const d = Math.abs(p - at)
           const o = Math.max(0, 1 - d / 0.17)
           return (
             <p
               className="dive-line"
-              key={b.text}
+              key={at}
               style={{
                 opacity: o,
                 transform: `translateY(${(1 - o) * 22}px)`,
                 filter: `blur(${(1 - o) * 5}px)`,
               }}
             >
-              {b.text}
+              {t.dive[i]}
             </p>
           )
         })}

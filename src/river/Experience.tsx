@@ -1,4 +1,6 @@
 import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react'
+import { profile } from '../data'
+import { useI18n } from '../i18n'
 
 const Stage = lazy(() => import('./Stage'))
 
@@ -14,6 +16,7 @@ export default function Experience({ onEntered }: { onEntered: () => void }) {
   const [pct, setPct] = useState(0)
   const [ready, setReady] = useState(false)
   const [entered, setEntered] = useState(false)
+  const { t } = useI18n()
 
   const marks = useRef({ chunk: 0, fonts: 0, frame: 0 })
   const bump = useCallback((k: 'chunk' | 'fonts' | 'frame') => {
@@ -106,14 +109,14 @@ export default function Experience({ onEntered }: { onEntered: () => void }) {
       {!entered && (
         <div className={`gate${ready ? ' is-ready' : ''}`}>
           <div className="gate-inner">
-            <div className="gate-name">Aekkarit Surit</div>
+            <div className="gate-name">{profile.name}</div>
             <div className="gate-ring">
               <span className="gate-pct">{Math.min(pct, 100)}%</span>
               <button className="gate-enter" onClick={enter} disabled={!ready}>
-                Enter
+                {t.gate.enter}
               </button>
             </div>
-            <div className="gate-role">Full Stack Developer</div>
+            <div className="gate-role">{t.gate.role}</div>
           </div>
         </div>
       )}
