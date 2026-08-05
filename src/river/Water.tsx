@@ -22,11 +22,17 @@ export default function Water({
   spaceRef,
   submergedRef,
   pointerRef,
+  pokeRef,
+  nowRef,
 }: {
   spaceRef: React.MutableRefObject<number>
   submergedRef: React.MutableRefObject<number>
   /** Where the cursor meets the surface, in world XZ, plus how much it counts. */
   pointerRef: React.MutableRefObject<THREE.Vector3>
+  /** xy = a poked otter's XZ, z = when it happened, w = whether one is live. */
+  pokeRef: React.MutableRefObject<THREE.Vector4>
+  /** Wall clock. The poke ripple is timed off the click, not off the scene. */
+  nowRef: React.MutableRefObject<number>
 }) {
   const mat = useRef<THREE.ShaderMaterial>(null)
 
@@ -38,6 +44,8 @@ export default function Water({
       uMurk: { value: new THREE.Color('#12363c') },
       // xy = contact point on the surface, z = strength (0 when off-water)
       uPointer: { value: new THREE.Vector3(0, 0, 0) },
+      uPoke: { value: new THREE.Vector4(0, 0, -999, 0) },
+      uNow: { value: 0 },
       uSun: { value: new THREE.Vector3(0.42, 0.5, -0.76).normalize() },
       uSunCol: { value: new THREE.Color('#ffcf96') },
       uDeep: { value: new THREE.Color('#05201d') },
@@ -64,12 +72,16 @@ export default function Water({
     mat.current.uniforms.uSpace.value = spaceRef.current
     mat.current.uniforms.uSubmerged.value = submergedRef.current
     ;(mat.current.uniforms.uPointer.value as THREE.Vector3).copy(pointerRef.current)
+    ;(mat.current.uniforms.uPoke.value as THREE.Vector4).copy(pokeRef.current)
+    mat.current.uniforms.uNow.value = nowRef.current
   })
 
   const vertex = /* glsl */ `
     ${WAVE_GLSL}
     uniform float uTime;
     uniform vec3 uPointer;
+    uniform vec4 uPoke;
+    uniform float uNow;
     uniform vec4 uW0; uniform float uS0;
     uniform vec4 uW1; uniform float uS1;
     uniform vec4 uW2; uniform float uS2;
@@ -111,7 +123,30 @@ export default function Water({
       tangent.y += dRing * dir.x * 0.9;
       binormal.y += dRing * dir.y * 0.9;
 
-      vCrest = acc.y + ring * 0.5;
+      // A single expanding ring where an otter was poked. Unlike the cursor
+      // ripple this one has a front: the disturbance only exists inside a
+      // radius that grows with age, so it reads as something that happened
+      // at a moment rather than a permanently wobbling patch.
+      float poke = 0.0;
+      if (uPoke.w > 0.5) {
+        float age = uNow - uPoke.z;
+        if (age > 0.0 && age < 2.4) {
+          float d = distance(p.xz, uPoke.xy);
+          float front = 5.5 * age;
+          float env = exp(-d * 0.26) * exp(-age * 1.5)
+                    * smoothstep(0.0, 0.10, age)
+                    * smoothstep(front + 1.6, front - 1.2, d);
+          poke = sin(d * 2.6 - age * 7.5) * env;
+          p.y += poke * 0.75;
+
+          float dPoke = cos(d * 2.6 - age * 7.5) * env;
+          vec2 pdir = d > 0.001 ? (p.xz - uPoke.xy) / d : vec2(0.0);
+          tangent.y += dPoke * pdir.x * 1.6;
+          binormal.y += dPoke * pdir.y * 1.6;
+        }
+      }
+
+      vCrest = acc.y + ring * 0.5 + poke * 0.6;
 
       vec3 n = normalize(cross(binormal, tangent));
       vNormal = normalize(mat3(modelMatrix) * n);

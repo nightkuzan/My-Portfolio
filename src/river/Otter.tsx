@@ -1,8 +1,9 @@
-import { useMemo, useRef } from 'react'
-import { useFrame } from '@react-three/fiber'
+import { useEffect, useMemo, useRef } from 'react'
+import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
-import { sceneTime } from './quality'
+import { reducedMotion, sceneTime } from './quality'
 import { applyCaustics } from './caustics'
+import { addProbe, removeProbe } from './interaction'
 
 /**
  * A river otter, modelled in code rather than loaded from a file.
@@ -35,6 +36,18 @@ export default function Otter({
   const group = useRef<THREE.Group>(null)
   const armL = useRef<THREE.Mesh>(null)
   const armR = useRef<THREE.Mesh>(null)
+  const head = useRef<THREE.Group>(null)
+
+  const { camera } = useThree()
+
+  // Registered for as long as this otter is mounted; Scene does the hit
+  // test against every probe once per frame.
+  const probe = useMemo(() => addProbe(), [])
+  useEffect(() => () => removeProbe(probe.id), [probe])
+
+  /** Eased 0..1 hover response, so it never snaps. */
+  const perk = useRef(0)
+  const scratch = useMemo(() => new THREE.Vector3(), [])
 
   const mats = useMemo(() => {
     const m = {
@@ -58,14 +71,62 @@ export default function Otter({
 
   // Idle life: a slow breath in the chest and a lazy paw drift. Without this
   // the otter reads as a prop instead of an animal.
-  useFrame(({ clock }) => {
+  useFrame(({ clock }, dt) => {
+    // Two clocks. Ambient life runs on the scene clock, which `?still`
+    // pauses; a reaction to a click runs on the wall clock, because it was
+    // the visitor who started it.
+    const raw = clock.elapsedTime
     const t = sceneTime(clock.elapsedTime) + phase
-    if (group.current) {
-      group.current.rotation.z = rotation[2] + Math.sin(t * 0.5) * 0.05
-    }
+    const g = group.current
+    if (!g) return
+
     const paw = Math.sin(t * 0.7) * 0.06
     if (armL.current) armL.current.rotation.z = 0.9 + paw
     if (armR.current) armR.current.rotation.z = -0.9 - paw
+
+    if (reducedMotion) {
+      g.rotation.z = rotation[2]
+      probe.active = false
+      return
+    }
+
+    // Publish where we ended up. The parent has already positioned us this
+    // frame, so the world matrix is one update away from current.
+    g.updateWorldMatrix(true, false)
+    g.getWorldPosition(probe.pos)
+    g.getWorldScale(scratch)
+    probe.radius = 1.05 * scratch.x
+    probe.active = true
+
+    const step = Math.min(dt, 0.05)
+    perk.current += ((probe.hovered ? 1 : 0) - perk.current) * 7 * step
+
+    // A poke sends it into a barrel roll along its own length. Eased in and
+    // out so it winds up and settles rather than cutting to a constant spin.
+    const since = raw - probe.poked
+    const SPIN = 1.0
+    const roll =
+      since >= 0 && since < SPIN
+        ? THREE.MathUtils.smoothstep(since / SPIN, 0, 1) * Math.PI * 2
+        : 0
+    // A little squash on top of the hover swell, peaking as the roll starts.
+    const pop = since >= 0 && since < SPIN ? Math.sin((since / SPIN) * Math.PI) * 0.14 : 0
+
+    g.rotation.x = roll
+    g.rotation.z = rotation[2] + Math.sin(t * 0.5) * 0.05
+    g.scale.setScalar(scale * (1 + perk.current * 0.11 + pop))
+
+    // Turns its head toward you while you are pointing at it. Aiming the
+    // whole body would fight whatever the parent is doing with the pose.
+    if (head.current) {
+      let yaw = 0
+      if (perk.current > 0.002) {
+        // Camera in the otter's own space; the head's forward axis is +X.
+        g.worldToLocal(scratch.copy(camera.position))
+        yaw = THREE.MathUtils.clamp(Math.atan2(-scratch.z, scratch.x), -0.75, 0.75)
+      }
+      head.current.rotation.y = yaw * perk.current
+    }
   })
 
   return (
@@ -80,7 +141,7 @@ export default function Otter({
       </mesh>
 
       {/* head, tipped back the way a floating otter holds it */}
-      <group position={[0.72, 0.16, 0]} rotation={[0, 0, -0.34]}>
+      <group ref={head} position={[0.72, 0.16, 0]} rotation={[0, 0, -0.34]}>
         <mesh material={mats.fur} castShadow>
           <sphereGeometry args={[0.31, 22, 18]} />
         </mesh>

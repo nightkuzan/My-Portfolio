@@ -86,6 +86,13 @@ a { color: inherit; text-decoration: none; }
   margin: -2px 0 0 -2px;
   background: var(--accent-2);
 }
+/* The otters have no DOM element to hang a cursor on, so the class goes on
+   the body. Applied to everything so it wins over the copy layered on top
+   of the canvas, which would otherwise show a text caret. */
+body.over-otter,
+body.over-otter * {
+  cursor: pointer;
+}
 @media (hover: none), (prefers-reduced-motion: reduce) {
   .cursor, .cursor-dot { display: none; }
 }

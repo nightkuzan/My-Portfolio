@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import Water from './Water'
@@ -7,9 +7,11 @@ import Motes from './Motes'
 import Post from './Post'
 import Diver from './Diver'
 import Shafts from './Shafts'
+import Bubbles from './Bubbles'
 import Otter from './Otter'
 import { sampleWater } from './waves'
 import { causticTime } from './caustics'
+import { burstAt, eachProbe, pointerState, type OtterProbe } from './interaction'
 import { quality, reducedMotion, sceneTime } from './quality'
 
 /**
@@ -196,6 +198,27 @@ export default function Scene({
 
   const pointer = useRef({ x: 0, y: 0 })
 
+  /**
+   * Pointer position in NDC, tracked off the window rather than taken from
+   * R3F's own `pointer`.
+   *
+   * R3F listens on the canvas, and the canvas is the page background: the
+   * content layer sits above it at z-index 1 and swallows every event that
+   * lands on copy. So R3F's pointer only updated over the few gaps in the
+   * layout, which is why the cursor ripple looked like it did nothing.
+   */
+  const ndc = useRef(new THREE.Vector2(0, 0))
+  useEffect(() => {
+    const onMove = (e: PointerEvent) => {
+      ndc.current.set(
+        (e.clientX / window.innerWidth) * 2 - 1,
+        -(e.clientY / window.innerHeight) * 2 + 1,
+      )
+    }
+    window.addEventListener('pointermove', onMove, { passive: true })
+    return () => window.removeEventListener('pointermove', onMove)
+  }, [])
+
   // Where the cursor lands on the water, fed to the ripple term in the
   // water's vertex shader. z carries the strength so the effect can fade
   // out cleanly once the surface is no longer in front of the camera.
@@ -204,7 +227,36 @@ export default function Scene({
   const plane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), [])
   const hit = useMemo(() => new THREE.Vector3(), [])
 
-  useFrame(({ scene, pointer: p, clock }, dt) => {
+  // xy = where a poked otter was, z = when, w = whether there is one at all.
+  const poke = useRef(new THREE.Vector4(0, 0, -999, 0))
+  const hovered = useRef<OtterProbe | null>(null)
+  const now = useRef(0)
+  const centre = useMemo(() => new THREE.Vector3(), [])
+  const edge = useMemo(() => new THREE.Vector3(), [])
+  const camRight = useMemo(() => new THREE.Vector3(), [])
+
+  /**
+   * Poking an otter is a pointerdown anywhere over the canvas — the scene
+   * sits behind the whole page, so there is no element of its own to bind
+   * to. Real controls on top of it keep their clicks.
+   */
+  useEffect(() => {
+    if (reducedMotion) return
+    const onDown = (e: PointerEvent) => {
+      const p = hovered.current
+      if (!p) return
+      const el = e.target as Element | null
+      if (el?.closest?.('a, button, input, textarea, select, label')) return
+      p.poked = now.current
+      burstAt(p.pos)
+      poke.current.set(p.pos.x, p.pos.z, now.current, 1)
+    }
+    window.addEventListener('pointerdown', onDown)
+    return () => window.removeEventListener('pointerdown', onDown)
+  }, [])
+
+  useFrame(({ scene, clock }, dt) => {
+    const p = ndc.current
     // The only trustworthy "we are actually rendering" signal: a real frame.
     if (!announced.current) {
       announced.current = true
@@ -285,6 +337,47 @@ export default function Scene({
         contact.current.z += (0 - contact.current.z) * 0.1
       }
     }
+
+    // --- which otter is under the pointer ---------------------------------
+    //
+    // Everything is compared in normalised device coordinates. The hit
+    // radius comes from projecting a point one radius to the camera's right
+    // and measuring how far that moved on screen, which handles perspective
+    // and any parent scaling without special cases.
+    // Wall clock, not scene clock: this drives reactions to clicks.
+    now.current = clock.elapsedTime
+    if (!reducedMotion) {
+      camRight.setFromMatrixColumn(camera.matrixWorld, 0)
+      let best: OtterProbe | null = null
+      let bestDepth = Infinity
+
+      eachProbe((probe) => {
+        probe.hovered = false
+        if (!probe.active) return
+
+        centre.copy(probe.pos).project(camera)
+        // z > 1 is behind the near plane — projecting those gives mirrored
+        // coordinates that land plausibly on screen.
+        if (centre.z > 1) return
+
+        edge.copy(probe.pos).addScaledVector(camRight, probe.radius).project(camera)
+        const r = Math.hypot(edge.x - centre.x, edge.y - centre.y)
+        const d = Math.hypot(p.x - centre.x, p.y - centre.y)
+
+        // Generous, with a floor so a distant otter is still catchable.
+        if (d < Math.max(r * 1.15, 0.035) && centre.z < bestDepth) {
+          best = probe
+          bestDepth = centre.z
+        }
+      })
+
+      hovered.current = best
+      if (best) (best as OtterProbe).hovered = true
+      pointerState.overOtter = !!best
+    }
+
+    // Let the ripple from a poke run its course, then stop paying for it.
+    if (poke.current.w > 0.5 && now.current - poke.current.z > 2.4) poke.current.w = 0
   })
 
   return (
@@ -300,10 +393,17 @@ export default function Scene({
       <directionalLight position={[-7, 3, 6]} intensity={0.5} color="#7fa8ff" />
 
       <Sky spaceRef={space} underRef={below} />
-      <Water spaceRef={space} submergedRef={below} pointerRef={contact} />
+      <Water
+        spaceRef={space}
+        submergedRef={below}
+        pointerRef={contact}
+        pokeRef={poke}
+        nowRef={now}
+      />
       <Stars />
       <Shafts beamRef={beam} />
       <Motes submergedRef={submerged} />
+      <Bubbles />
 
       {/* Kept to the right half of the frame: the hero copy owns the left,
           and an otter drifting behind body text helps nobody. Sized so the

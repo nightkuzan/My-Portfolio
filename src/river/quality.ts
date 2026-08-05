@@ -28,7 +28,16 @@ export const lite = coarse || narrow || lowMemory
  * still answers the scroll, because that is the visitor driving it, but
  * nothing moves on its own.
  */
-export const sceneTime = (elapsed: number) => (reducedMotion ? 6 : elapsed)
+/**
+ * `?still` holds the scene clock without touching anything else, so the
+ * otters can be pointed at from a script. Automated browsers run in a
+ * background tab where rAF is throttled to about one frame a second, which
+ * makes a moving hit target impossible to aim at deliberately.
+ */
+const still =
+  typeof location !== 'undefined' && new URLSearchParams(location.search).has('still')
+
+export const sceneTime = (elapsed: number) => (reducedMotion || still ? 6 : elapsed)
 
 export const quality = {
   /** Water plane subdivisions. The single biggest vertex cost in the scene. */
