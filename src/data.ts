@@ -61,7 +61,7 @@ export const roles: Role[] = [
   {
     id: 'victoryEarly',
     company: 'VICTORY WORK CO., LTD',
-    tech: ['Vue', 'Nuxt', 'PWA', 'Strapi', 'Socket.io', 'REST'],
+    tech: ['Vue', 'Nuxt', 'PWA', 'Middleware', 'REST'],
   },
   {
     id: 'ayudhya',
