@@ -1,4 +1,13 @@
-import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react'
+import {
+  Suspense,
+  lazy,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react'
+import { audioState } from '../audio-state'
 import { profile } from '../data'
 import { useI18n } from '../i18n'
 
@@ -17,6 +26,13 @@ export default function Experience({ onEntered }: { onEntered: () => void }) {
   const [ready, setReady] = useState(false)
   const [entered, setEntered] = useState(false)
   const { t } = useI18n()
+
+  const sound = useSyncExternalStore(
+    audioState.subscribe,
+    () => audioState.enabled,
+    () => false,
+  )
+  const enableSound = useCallback(() => audioState.set(!audioState.enabled), [])
 
   const marks = useRef({ chunk: 0, fonts: 0, frame: 0 })
   const bump = useCallback((k: 'chunk' | 'fonts' | 'frame') => {
@@ -117,6 +133,12 @@ export default function Experience({ onEntered }: { onEntered: () => void }) {
               </button>
             </div>
             <div className="gate-role">{t.gate.role}</div>
+            {/* Sound is off by default, so the invitation has to be here —
+                otherwise most visitors never learn there is any. */}
+            <button className="gate-sound" type="button" onClick={enableSound}>
+              <span className={`gate-sound-dot${sound ? ' is-on' : ''}`} aria-hidden="true" />
+              {sound ? t.sound.off : t.gate.sound}
+            </button>
           </div>
         </div>
       )}

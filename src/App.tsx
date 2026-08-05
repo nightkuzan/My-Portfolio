@@ -3,6 +3,7 @@ import Cursor from './components/Cursor'
 import Dive from './components/Dive'
 import Hero from './components/Hero'
 import LangSwitch from './components/LangSwitch'
+import SoundToggle from './components/SoundToggle'
 import { About, Contact, Projects, Stack, Work } from './components/Sections'
 import Experience from './river/Experience'
 import { profile } from './data'
@@ -40,6 +41,7 @@ function Page() {
                 </a>
               ))}
             </div>
+            <SoundToggle />
             <LangSwitch />
           </div>
         </nav>

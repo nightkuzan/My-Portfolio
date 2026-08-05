@@ -32,6 +32,12 @@ export const en = {
   gate: {
     enter: 'Enter',
     role: 'Full Stack Developer',
+    sound: 'Best with sound',
+  },
+
+  sound: {
+    on: 'Turn sound on',
+    off: 'Turn sound off',
   },
 
   hero: {

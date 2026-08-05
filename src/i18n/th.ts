@@ -31,6 +31,12 @@ export const th: Dict = {
   gate: {
     enter: 'เข้าชม',
     role: 'Full Stack Developer',
+    sound: 'เปิดเสียงจะได้อารมณ์กว่า',
+  },
+
+  sound: {
+    on: 'เปิดเสียง',
+    off: 'ปิดเสียง',
   },
 
   hero: {

@@ -8,6 +8,8 @@ import Post from './Post'
 import Diver from './Diver'
 import Shafts from './Shafts'
 import Bubbles from './Bubbles'
+import Ambience from './Ambience'
+import Leviathan from './Leviathan'
 import Otter from './Otter'
 import { sampleWater } from './waves'
 import { causticTime } from './caustics'
@@ -404,11 +406,13 @@ export default function Scene({
       <Shafts beamRef={beam} />
       <Motes submergedRef={submerged} />
       <Bubbles />
+      <Ambience belowRef={below} spaceRef={space} />
 
       {/* Kept to the right half of the frame: the hero copy owns the left,
           and an otter drifting behind body text helps nobody. Sized so the
           nearest one reads clearly without being cropped by the viewport. */}
       <Diver progress={progress} spread={spread} />
+      <Leviathan progress={progress} />
 
       <SurfaceOtter x={5.6 * spread} z={-2} phase={0} scale={1.6} />
       <SurfaceOtter x={9.5 * spread} z={-11} phase={1.7} scale={1.3} />
