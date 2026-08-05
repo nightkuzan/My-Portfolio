@@ -63,9 +63,12 @@ export default function Otter({
     }
     // Fur and belly catch the water light; the eyes and nose are wet and
     // dark, and lighting them the same way just makes them look dusty.
-    applyCaustics(m.fur, 0.5)
-    applyCaustics(m.furDark, 0.42)
-    applyCaustics(m.cream, 0.34)
+    // Trimmed after seeing a close otter mid-dive: at half strength the
+    // filaments stop reading as light on wet fur and start reading as
+    // white ribbons wrapped around the animal.
+    applyCaustics(m.fur, 0.36)
+    applyCaustics(m.furDark, 0.3)
+    applyCaustics(m.cream, 0.24)
     return m
   }, [])
 
