@@ -4,6 +4,7 @@ import { useReveal, useTilt } from '../hooks'
 import type { Project } from '../data'
 import { useI18n } from '../i18n'
 import type { Dict } from '../i18n/en'
+import ProjectArt from './ProjectArt'
 
 function Section({
   id,
@@ -106,6 +107,7 @@ function Card({ p }: { p: Project }) {
 
   return (
     <article className="card" ref={ref}>
+      <ProjectArt id={p.id} />
       <p className="card-ctx">{copy.context}</p>
       <h3 className="card-title">{copy.title}</h3>
       <p className="card-blurb">{copy.blurb}</p>
