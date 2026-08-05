@@ -2,6 +2,7 @@ import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { sceneTime } from './quality'
+import { applyCaustics } from './caustics'
 
 /**
  * A river otter, modelled in code rather than loaded from a file.
@@ -35,8 +36,8 @@ export default function Otter({
   const armL = useRef<THREE.Mesh>(null)
   const armR = useRef<THREE.Mesh>(null)
 
-  const mats = useMemo(
-    () => ({
+  const mats = useMemo(() => {
+    const m = {
       fur: new THREE.MeshStandardMaterial({ color: FUR, roughness: 0.82, metalness: 0 }),
       furDark: new THREE.MeshStandardMaterial({ color: FUR_DARK, roughness: 0.85 }),
       cream: new THREE.MeshStandardMaterial({ color: CREAM, roughness: 0.78 }),
@@ -46,9 +47,14 @@ export default function Otter({
         roughness: 0.08,
         metalness: 0.35,
       }),
-    }),
-    [],
-  )
+    }
+    // Fur and belly catch the water light; the eyes and nose are wet and
+    // dark, and lighting them the same way just makes them look dusty.
+    applyCaustics(m.fur, 0.5)
+    applyCaustics(m.furDark, 0.42)
+    applyCaustics(m.cream, 0.34)
+    return m
+  }, [])
 
   // Idle life: a slow breath in the chest and a lazy paw drift. Without this
   // the otter reads as a prop instead of an animal.

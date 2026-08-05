@@ -4,8 +4,12 @@ import * as THREE from 'three'
 import Water from './Water'
 import Sky from './Sky'
 import Motes from './Motes'
+import Post from './Post'
+import Diver from './Diver'
+import Shafts from './Shafts'
 import Otter from './Otter'
 import { sampleWater } from './waves'
+import { causticTime } from './caustics'
 import { quality, reducedMotion, sceneTime } from './quality'
 
 /**
@@ -65,7 +69,10 @@ function Stars({ count = quality.stars }: { count?: number }) {
             vTint = aTint;
             vTwinkle = 0.55 + 0.45 * sin(uTime * 1.3 + position.x * 0.6 + position.z * 0.4);
             vec4 mv = modelViewMatrix * vec4(position, 1.0);
-            gl_PointSize = aSize * (220.0 / -mv.z);
+            // Capped: the camera flies through the middle of the field, and
+            // a star that ends up a metre from the lens would otherwise
+            // scale into a dinner plate and bloom over half the frame.
+            gl_PointSize = clamp(aSize * (220.0 / max(-mv.z, 0.001)), 1.0, 9.0);
             gl_Position = projectionMatrix * mv;
           }
         `,
@@ -173,18 +180,31 @@ export default function Scene({
   const spread = THREE.MathUtils.lerp(1, 0.4, narrow)
   const pullBack = THREE.MathUtils.lerp(0, 5.5, narrow)
   const space = useRef(0)
+  /** Below the surface at all. Stays at 1 once we are under. */
+  const below = useRef(0)
+  /** Below the surface *and* not yet in the dark — the murky middle. */
   const submerged = useRef(0)
+  const beam = useRef(0)
   const announced = useRef(false)
   const sun = useRef<THREE.DirectionalLight>(null)
   const fog = useMemo(() => new THREE.FogExp2('#bfd8d0', 0.012), [])
 
   const dayFog = useMemo(() => new THREE.Color('#bfd8d0'), [])
+  const murkFog = useMemo(() => new THREE.Color('#123b40'), [])
   const deepFog = useMemo(() => new THREE.Color('#02030a'), [])
   const tmp = useMemo(() => new THREE.Color(), [])
 
   const pointer = useRef({ x: 0, y: 0 })
 
-  useFrame(({ scene, pointer: p }, dt) => {
+  // Where the cursor lands on the water, fed to the ripple term in the
+  // water's vertex shader. z carries the strength so the effect can fade
+  // out cleanly once the surface is no longer in front of the camera.
+  const contact = useRef(new THREE.Vector3(0, 0, 0))
+  const ray = useMemo(() => new THREE.Raycaster(), [])
+  const plane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), [])
+  const hit = useMemo(() => new THREE.Vector3(), [])
+
+  useFrame(({ scene, pointer: p, clock }, dt) => {
     // The only trustworthy "we are actually rendering" signal: a real frame.
     if (!announced.current) {
       announced.current = true
@@ -207,15 +227,21 @@ export default function Scene({
     // The descent only begins once the hero has scrolled away (the hero is
     // one viewport of a 2.6-viewport range). Starting at zero put the camera
     // underwater while the headline was still on screen.
-    const dive = THREE.MathUtils.smoothstep(s, 0.36, 1)
+    // Ends well before the scroll range does. Stretched to the full range
+    // the camera crawled, and the middle of the dive was a held frame of
+    // flat water with nothing happening in it.
+    const dive = THREE.MathUtils.smoothstep(s, 0.34, 0.86)
     camera.position.set(
       pointer.current.x * 1.6,
       THREE.MathUtils.lerp(2.8, -32, dive) + pointer.current.y * 0.5,
       THREE.MathUtils.lerp(12, 4, dive) + pullBack,
     )
+    // The aim point rides the same curve as the camera. On its own schedule
+    // it outran the descent: the lens tipped down while the camera was still
+    // at hero height, pushing the horizon up and flattening the shot.
     camera.lookAt(
       pointer.current.x * 0.8,
-      THREE.MathUtils.lerp(1.5, -40, THREE.MathUtils.smoothstep(s, 0.38, 1)),
+      THREE.MathUtils.lerp(1.5, -40, dive),
       THREE.MathUtils.lerp(-20, -10, dive),
     )
 
@@ -223,19 +249,42 @@ export default function Scene({
     // position. Tied to scroll they drift out of sync with the geometry and
     // you get daylight sky visible from ten metres underwater.
     const camY = camera.position.y
-    const under = descend(camY, 0.8, -2.5)
+    // Deliberately short. Spread over three metres, the crossing spent long
+    // enough half-and-half that the water below the horizon was still lit
+    // like sky — pale grey above the surface and pale grey below it, with
+    // no moment of going through anything.
+    const under = descend(camY, 0.6, -1.6)
     const deep = descend(camY, -4, -17)
     space.current = deep
+    below.current = under
     submerged.current = under * (1 - deep)
+    // Dies exactly with the water. Given a tail into deep space the shafts
+    // survived as evenly-spaced vertical smears across the star field —
+    // there is no surface out there for light to come through.
+    beam.current = under * (1 - deep)
+    causticTime.value = sceneTime(clock.elapsedTime)
 
     // Fog only touches the lit meshes; the sky and water are raw shaders
     // and opt out, which keeps the horizon crisp.
-    tmp.copy(dayFog).lerp(deepFog, Math.max(under, deep))
+    tmp.copy(dayFog).lerp(murkFog, under).lerp(deepFog, deep)
     fog.color.copy(tmp)
     fog.density = THREE.MathUtils.lerp(0.009, 0.0025, deep)
     scene.fog = fog
 
     if (sun.current) sun.current.intensity = THREE.MathUtils.lerp(3.1, 0.25, Math.max(under * 0.7, deep))
+
+    // Project the cursor onto the surface. Ripples only make sense while
+    // the water is actually in view from above, so the strength follows the
+    // dive and dies off as the camera drops through.
+    if (!reducedMotion) {
+      ray.setFromCamera(p, camera)
+      const strength = (1 - THREE.MathUtils.smoothstep(dive, 0, 0.3)) * 0.85
+      if (strength > 0.01 && ray.ray.intersectPlane(plane, hit)) {
+        contact.current.set(hit.x, hit.z, strength)
+      } else {
+        contact.current.z += (0 - contact.current.z) * 0.1
+      }
+    }
   })
 
   return (
@@ -250,14 +299,17 @@ export default function Scene({
       {/* cool bounce so the shadowed side of an otter never goes flat black */}
       <directionalLight position={[-7, 3, 6]} intensity={0.5} color="#7fa8ff" />
 
-      <Sky spaceRef={space} submergedRef={submerged} />
-      <Water spaceRef={space} />
+      <Sky spaceRef={space} underRef={below} />
+      <Water spaceRef={space} submergedRef={below} pointerRef={contact} />
       <Stars />
+      <Shafts beamRef={beam} />
       <Motes submergedRef={submerged} />
 
       {/* Kept to the right half of the frame: the hero copy owns the left,
           and an otter drifting behind body text helps nobody. Sized so the
           nearest one reads clearly without being cropped by the viewport. */}
+      <Diver progress={progress} spread={spread} />
+
       <SurfaceOtter x={5.6 * spread} z={-2} phase={0} scale={1.6} />
       <SurfaceOtter x={9.5 * spread} z={-11} phase={1.7} scale={1.3} />
       {quality.surfaceOtters > 2 && (
@@ -269,6 +321,8 @@ export default function Scene({
       {quality.driftOtters > 2 && (
         <DriftOtter base={[-2 * spread, -48, -18]} phase={4.1} scale={2.8} />
       )}
+
+      <Post />
     </>
   )
 }

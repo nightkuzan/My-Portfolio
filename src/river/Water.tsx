@@ -20,8 +20,13 @@ import { quality, sceneTime } from './quality'
  */
 export default function Water({
   spaceRef,
+  submergedRef,
+  pointerRef,
 }: {
   spaceRef: React.MutableRefObject<number>
+  submergedRef: React.MutableRefObject<number>
+  /** Where the cursor meets the surface, in world XZ, plus how much it counts. */
+  pointerRef: React.MutableRefObject<THREE.Vector3>
 }) {
   const mat = useRef<THREE.ShaderMaterial>(null)
 
@@ -29,6 +34,10 @@ export default function Water({
     () => ({
       uTime: { value: 0 },
       uSpace: { value: 0 },
+      uSubmerged: { value: 0 },
+      uMurk: { value: new THREE.Color('#12363c') },
+      // xy = contact point on the surface, z = strength (0 when off-water)
+      uPointer: { value: new THREE.Vector3(0, 0, 0) },
       uSun: { value: new THREE.Vector3(0.42, 0.5, -0.76).normalize() },
       uSunCol: { value: new THREE.Color('#ffcf96') },
       uDeep: { value: new THREE.Color('#05201d') },
@@ -53,11 +62,14 @@ export default function Water({
     if (!mat.current) return
     mat.current.uniforms.uTime.value = sceneTime(clock.elapsedTime)
     mat.current.uniforms.uSpace.value = spaceRef.current
+    mat.current.uniforms.uSubmerged.value = submergedRef.current
+    ;(mat.current.uniforms.uPointer.value as THREE.Vector3).copy(pointerRef.current)
   })
 
   const vertex = /* glsl */ `
     ${WAVE_GLSL}
     uniform float uTime;
+    uniform vec3 uPointer;
     uniform vec4 uW0; uniform float uS0;
     uniform vec4 uW1; uniform float uS1;
     uniform vec4 uW2; uniform float uS2;
@@ -84,7 +96,22 @@ export default function Water({
       acc += gerstner(w3, p, uTime, tangent, binormal);
 
       p += acc;
-      vCrest = acc.y;
+
+      // Rings spreading from wherever the cursor meets the surface. The
+      // exponential term keeps the disturbance local, so the rest of the
+      // river carries on as if nothing happened.
+      float pd = distance(p.xz, uPointer.xy);
+      float ring = sin(pd * 3.4 - uTime * 5.5) * exp(-pd * 0.42) * uPointer.z;
+      p.y += ring * 0.34;
+
+      // Fold the ripple into the slope too, or it displaces the surface
+      // without changing how light comes off it and reads like a decal.
+      float dRing = cos(pd * 3.4 - uTime * 5.5) * exp(-pd * 0.42) * uPointer.z;
+      vec2 dir = pd > 0.001 ? (p.xz - uPointer.xy) / pd : vec2(0.0);
+      tangent.y += dRing * dir.x * 0.9;
+      binormal.y += dRing * dir.y * 0.9;
+
+      vCrest = acc.y + ring * 0.5;
 
       vec3 n = normalize(cross(binormal, tangent));
       vNormal = normalize(mat3(modelMatrix) * n);
@@ -98,6 +125,8 @@ export default function Water({
   const fragment = /* glsl */ `
     uniform float uTime;
     uniform float uSpace;
+    uniform float uSubmerged;
+    uniform vec3 uMurk;
     uniform vec3 uSun;
     uniform vec3 uSunCol;
     uniform vec3 uDeep;
@@ -194,6 +223,26 @@ export default function Water({
       cosmic += uStarTint * spec * 1.4;
 
       vec3 col = mix(river, cosmic, uSpace);
+
+      // Seen from underneath, the surface is a ceiling, not a hard edge.
+      // Rendered single-sided it was culled from below and all that showed
+      // was a few thin slivers where the waves happened to tip toward the
+      // camera — which read as stray white lines across the water.
+      if (!gl_FrontFacing) {
+        float glow = smoothstep(0.25, 1.0, fres);
+        col = mix(col * 0.30, uHorizon * 0.42, 0.30 + 0.45 * glow);
+        col += uSunCol * spec * 0.9;
+      }
+
+      // Aerial perspective, and the only thing that hides the fact that the
+      // river is a finite plane. Seen from underneath, its rim used to cut a
+      // hard line across the sky dome — thin, bright and unmistakably a bug.
+      // Fading into the background well before the edge also does what
+      // distance haze does for real water: it gives it scale.
+      vec3 bg = mix(uHorizon, uMurk, uSubmerged);
+      bg = mix(bg, uVoidHigh, uSpace);
+      col = mix(col, bg, smoothstep(65.0, 135.0, distance(cameraPosition, vWorld)));
+
       gl_FragColor = vec4(col, 1.0);
       #include <colorspace_fragment>
     }
@@ -214,6 +263,7 @@ export default function Water({
         uniforms={uniforms}
         vertexShader={vertex}
         fragmentShader={fragment}
+        side={THREE.DoubleSide}
       />
     </mesh>
   )

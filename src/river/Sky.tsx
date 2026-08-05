@@ -12,10 +12,11 @@ import { sceneTime } from './quality'
  */
 export default function Sky({
   spaceRef,
-  submergedRef,
+  underRef,
 }: {
   spaceRef: React.MutableRefObject<number>
-  submergedRef: React.MutableRefObject<number>
+  /** How far below the surface we are, 0..1 — independent of how deep. */
+  underRef: React.MutableRefObject<number>
 }) {
   const mat = useRef<THREE.ShaderMaterial>(null)
   const mesh = useRef<THREE.Mesh>(null)
@@ -43,7 +44,7 @@ export default function Sky({
     if (!mat.current) return
     mat.current.uniforms.uTime.value = sceneTime(clock.elapsedTime)
     mat.current.uniforms.uSpace.value = spaceRef.current
-    mat.current.uniforms.uSubmerged.value = submergedRef.current
+    mat.current.uniforms.uSubmerged.value = underRef.current
     // Ride with the camera. Anchored at the origin, the dome's idea of
     // "up" drifts as the camera descends and the horizon slides off.
     if (mesh.current) mesh.current.position.copy(camera.position)
@@ -137,8 +138,13 @@ export default function Sky({
             float shaft = pow(max(dot(normalize(vDir), uSunDir), 0.0), 12.0);
             murk += uSunCol * shaft * 0.22 * smoothstep(0.35, 1.0, h);
 
-            vec3 col = mix(day, night, uSpace);
-            col = mix(col, murk, uSubmerged);
+            // Order matters. Blending day->night first and then folding the
+            // murk in on top left roughly a third of the daylight sky alive
+            // through the middle of the descent, and the deepest water came
+            // out a pale lavender grey. The journey is sequential — you go
+            // under, and only then does it get dark — so the mixes are too.
+            vec3 col = mix(day, murk, uSubmerged);
+            col = mix(col, night, uSpace);
             gl_FragColor = vec4(col, 1.0);
             #include <colorspace_fragment>
           }
