@@ -20,10 +20,21 @@ export type LangCode = keyof typeof LANGS
 
 const STORE_KEY = 'lang'
 
-function initialLang(): string {
-  if (typeof window === 'undefined') return 'en'
+export const DEFAULT_LANG = 'en'
 
-  // An explicit choice always wins over what the browser guesses.
+/**
+ * English unless the visitor has said otherwise.
+ *
+ * Deliberately does not read navigator.languages. This is a portfolio
+ * aimed at an international audience, and most of the people who open it
+ * from a Thai browser — recruiters, other engineers — expect the English
+ * copy first. Sniffing the locale would show a Thai page to anyone whose
+ * OS happens to be set that way, with no signal that they had a choice.
+ */
+function initialLang(): string {
+  if (typeof window === 'undefined') return DEFAULT_LANG
+
+  // A choice made in the switcher, remembered.
   const saved = window.localStorage.getItem(STORE_KEY)
   if (saved && saved in LANGS) return saved
 
@@ -31,16 +42,12 @@ function initialLang(): string {
   const asked = new URLSearchParams(window.location.search).get('lang')
   if (asked && asked in LANGS) return asked
 
-  for (const tag of navigator.languages ?? [navigator.language]) {
-    const base = tag.toLowerCase().split('-')[0]
-    if (base in LANGS) return base
-  }
-  return 'en'
+  return DEFAULT_LANG
 }
 
 type Ctx = { lang: string; t: Dict; setLang: (code: string) => void }
 
-const I18nContext = createContext<Ctx>({ lang: 'en', t: en, setLang: () => {} })
+const I18nContext = createContext<Ctx>({ lang: DEFAULT_LANG, t: en, setLang: () => {} })
 
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState(initialLang)
