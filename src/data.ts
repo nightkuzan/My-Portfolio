@@ -38,6 +38,15 @@ export const roles: Role[] = [
     current: true,
     tech: ['React', 'Node.js', 'MongoDB', 'Stripe', 'Omise', 'Chrome Extensions'],
   },
+  /*
+   * VICTORY WORK is two entries, not one.
+   *
+   * As a single Mar 2024 — Present run it sat straight through the H LAB
+   * contract, and a freelance engagement overlapping a contract role is
+   * the kind of thing a reader stops to work out. Split around it, the
+   * timeline needs no explaining. It still overlaps Mexty, which is
+   * ordinary for freelance alongside a full-time job.
+   */
   {
     id: 'victory',
     company: 'VICTORY WORK CO., LTD',
@@ -48,6 +57,11 @@ export const roles: Role[] = [
     id: 'hlab',
     company: 'H LAB Co., Ltd.',
     tech: ['Go', 'TypeScript', 'Prisma', 'Jasper Reports'],
+  },
+  {
+    id: 'victoryEarly',
+    company: 'VICTORY WORK CO., LTD',
+    tech: ['Vue', 'Nuxt', 'PWA', 'Strapi', 'Socket.io', 'REST'],
   },
   {
     id: 'ayudhya',

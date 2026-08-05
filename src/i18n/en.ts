@@ -92,11 +92,11 @@ export const en = {
     victory: {
       title: 'Full Stack Developer',
       kind: 'Freelance · Remote',
-      period: 'Mar 2024 — Present',
+      period: 'Nov 2025 — Present',
       points: [
-        'A-MED CARE PLUS — hospital information system as a PWA: patient profile management, administrator management, and a middleware layer talking to external APIs.',
-        'Kepler — PWA with a dynamic news feed, personalised profile feed, secure login and configurable settings.',
-        'Omnichannel chat platform — built the LINE Broadcast feature end to end and took the inbound pipeline from never draining to clearing a 2-minute 120 msg/s burst in ~12 seconds.',
+        'Omnichannel chat platform — built the LINE Broadcast feature end to end: campaign builder, audience targeting, scheduling and delivery across nine LINE message types.',
+        'Took the inbound pipeline from never draining to clearing a 2-minute 120 msg/s burst in ~12 seconds, and cut HTTP p95 from 639 ms to 211 ms.',
+        'Moved broadcast media to a private Cloudflare R2 bucket behind a streaming proxy, so the URLs LINE fetches days later still resolve.',
       ],
     },
     hlab: {
@@ -107,6 +107,16 @@ export const en = {
         'Built back-end services in Go and TypeScript for internal business systems.',
         'Modelled and queried the database through Prisma ORM.',
         'Implemented reporting and document generation with Jasper Reports.',
+      ],
+    },
+    victoryEarly: {
+      title: 'Full Stack Developer',
+      kind: 'Freelance · Remote',
+      period: 'Mar 2024 — Jun 2025',
+      points: [
+        'A-MED CARE PLUS — hospital information system as a PWA: patient profile management, administrator management, and a middleware layer talking to external APIs.',
+        'Kepler — PWA with a dynamic news feed, personalised profile feed, secure login and configurable settings.',
+        'Digital Government platform — administrator and case management for a Thai Digital Government Agency platform, with real-time notifications over Socket.io.',
       ],
     },
     ayudhya: {
