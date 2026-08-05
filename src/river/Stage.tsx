@@ -17,9 +17,11 @@ import { quality } from './quality'
  */
 export default function Stage({
   progress,
+  after,
   onFirstFrame,
 }: {
   progress: React.MutableRefObject<number>
+  after: React.MutableRefObject<number>
   onFirstFrame: () => void
 }) {
   useEffect(() => {
@@ -35,7 +37,7 @@ export default function Stage({
       resize={{ scroll: false, debounce: { scroll: 0, resize: 0 } }}
     >
       <Suspense fallback={null}>
-        <Scene progress={progress} onReady={onFirstFrame} />
+        <Scene progress={progress} after={after} onReady={onFirstFrame} />
       </Suspense>
     </Canvas>
   )

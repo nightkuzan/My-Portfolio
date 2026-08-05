@@ -22,6 +22,15 @@ const Stage = lazy(() => import('./Stage'))
  */
 export default function Experience({ onEntered }: { onEntered: () => void }) {
   const progress = useRef(0)
+  /**
+   * Scroll through the content below the dive, 0..1.
+   *
+   * Kept separate from `progress` rather than extending its range: the
+   * dive maps to a fixed number of viewports, while this maps to however
+   * tall the page turns out to be. Folding them into one number would
+   * make the descent's pacing depend on how much copy is on the page.
+   */
+  const after = useRef(0)
   const [pct, setPct] = useState(0)
   const [ready, setReady] = useState(false)
   const [entered, setEntered] = useState(false)
@@ -108,6 +117,12 @@ export default function Experience({ onEntered }: { onEntered: () => void }) {
       // the camera arrives in space long after the captions have gone.
       const span = window.innerHeight * (window.innerWidth <= 820 ? 2.2 : 2.6)
       progress.current = Math.min(1, Math.max(0, window.scrollY / span))
+
+      const rest = Math.max(
+        1,
+        document.documentElement.scrollHeight - window.innerHeight - span,
+      )
+      after.current = Math.min(1, Math.max(0, (window.scrollY - span) / rest))
     }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
@@ -118,7 +133,7 @@ export default function Experience({ onEntered }: { onEntered: () => void }) {
     <>
       <div className="stage" aria-hidden="true">
         <Suspense fallback={null}>
-          <Stage progress={progress} onFirstFrame={onFirstFrame} />
+          <Stage progress={progress} after={after} onFirstFrame={onFirstFrame} />
         </Suspense>
       </div>
 

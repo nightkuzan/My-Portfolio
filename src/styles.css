@@ -494,13 +494,20 @@ body.is-locked { overflow: hidden; }
 /* Body copy cannot sit on moving water, but the dive should still glow
    through. The first section fades in from transparent so the descent is
    never cut off by a hard edge. */
+/* At 0.86 and 8px this let through about a seventh of the scene, which on
+   a near-black star field is nothing at all — the second half of the page
+   was effectively a flat panel. Raising the blur to compensate made it
+   worse, not better: a star is a few pixels across, so a wide blur is
+   exactly what destroys it, while the nebula behind survives either way.
+   So: less scrim, less blur. What is left reads as depth rather than as
+   detail competing with the copy. */
 .section:not(.contact),
 .foot {
-  background: rgba(6, 7, 11, 0.86);
-  backdrop-filter: blur(8px);
+  background: rgba(6, 7, 11, 0.72);
+  backdrop-filter: blur(5px);
 }
 #about {
-  background: linear-gradient(to bottom, rgba(6, 7, 11, 0.2), rgba(6, 7, 11, 0.86) 22%);
+  background: linear-gradient(to bottom, rgba(6, 7, 11, 0.2), rgba(6, 7, 11, 0.72) 22%);
 }
 .contact { background: linear-gradient(to bottom, rgba(6, 7, 11, 0.86), rgba(6, 7, 11, 0.4)); }
 .wrap { max-width: var(--maxw); margin: 0 auto; }

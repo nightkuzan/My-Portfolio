@@ -13,10 +13,13 @@ import { sceneTime } from './quality'
 export default function Sky({
   spaceRef,
   underRef,
+  afterRef,
 }: {
   spaceRef: React.MutableRefObject<number>
   /** How far below the surface we are, 0..1 — independent of how deep. */
   underRef: React.MutableRefObject<number>
+  /** Scroll through the content below the dive, 0..1. */
+  afterRef: React.MutableRefObject<number>
 }) {
   const mat = useRef<THREE.ShaderMaterial>(null)
   const mesh = useRef<THREE.Mesh>(null)
@@ -33,6 +36,10 @@ export default function Sky({
       uVoidZenith: { value: new THREE.Color('#01020a') },
       uNebulaA: { value: new THREE.Color('#5b3f92') },
       uNebulaB: { value: new THREE.Color('#1e5c86') },
+      /** Second palette, crossfaded in across the length of the page. */
+      uNebulaC: { value: new THREE.Color('#8a4a6d') },
+      uNebulaD: { value: new THREE.Color('#2e6f70') },
+      uAfter: { value: 0 },
       uSubmerged: { value: 0 },
       uMurkNear: { value: new THREE.Color('#1d4f52') },
       uMurkFar: { value: new THREE.Color('#04161c') },
@@ -45,6 +52,7 @@ export default function Sky({
     mat.current.uniforms.uTime.value = sceneTime(clock.elapsedTime)
     mat.current.uniforms.uSpace.value = spaceRef.current
     mat.current.uniforms.uSubmerged.value = underRef.current
+    mat.current.uniforms.uAfter.value = afterRef.current
     // Ride with the camera. Anchored at the origin, the dome's idea of
     // "up" drifts as the camera descends and the horizon slides off.
     if (mesh.current) mesh.current.position.copy(camera.position)
@@ -81,6 +89,9 @@ export default function Sky({
           uniform vec3 uVoidZenith;
           uniform vec3 uNebulaA;
           uniform vec3 uNebulaB;
+          uniform vec3 uNebulaC;
+          uniform vec3 uNebulaD;
+          uniform float uAfter;
           uniform float uSubmerged;
           uniform vec3 uMurkNear;
           uniform vec3 uMurkFar;
@@ -127,7 +138,13 @@ export default function Sky({
             // like stock space art.
             float n = fbm(vDir * 2.6 + vec3(0.0, uTime * 0.008, 0.0));
             float n2 = fbm(vDir * 5.1 - vec3(uTime * 0.006, 0.0, 0.0));
-            vec3 neb = mix(uNebulaA, uNebulaB, n2);
+            // The palette walks from violet-blue to rose-teal across the
+            // page. Slow enough that nobody catches it changing, but the
+            // Contact section is demonstrably not the colour the About
+            // section was — which is the point.
+            vec3 nebA = mix(uNebulaA, uNebulaC, uAfter);
+            vec3 nebB = mix(uNebulaB, uNebulaD, uAfter);
+            vec3 neb = mix(nebA, nebB, n2);
             night += neb * smoothstep(0.45, 0.95, n) * 0.5;
 
             // --- the moment just under the surface ------------------------

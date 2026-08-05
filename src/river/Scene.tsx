@@ -10,6 +10,7 @@ import Shafts from './Shafts'
 import Bubbles from './Bubbles'
 import Ambience from './Ambience'
 import Leviathan from './Leviathan'
+import Constellations from './Constellations'
 import Otter from './Otter'
 import { sampleWater } from './waves'
 import { causticTime } from './caustics'
@@ -165,9 +166,11 @@ function DriftOtter({
 
 export default function Scene({
   progress,
+  after,
   onReady,
 }: {
   progress: React.MutableRefObject<number>
+  after: React.MutableRefObject<number>
   onReady?: () => void
 }) {
   const { camera, size } = useThree()
@@ -285,18 +288,31 @@ export default function Scene({
     // the camera crawled, and the middle of the dive was a held frame of
     // flat water with nothing happening in it.
     const dive = THREE.MathUtils.smoothstep(s, 0.34, 0.86)
+
+    // Reading the page keeps the camera moving. Parked at the end of the
+    // descent it left the whole second half of the site scrolling past a
+    // still image; a slow lateral drift and a continued sink give the star
+    // field parallax without rotating the view, which would fight the copy
+    // sitting on top of it.
+    const a = after.current
+    const driftX = Math.sin(a * Math.PI * 1.6) * 9 * dive
+    const driftY = -a * 8 * dive
+    const driftZ = Math.cos(a * Math.PI * 1.2) * 5 * dive
+
     camera.position.set(
-      pointer.current.x * 1.6,
-      THREE.MathUtils.lerp(2.8, -32, dive) + pointer.current.y * 0.5,
-      THREE.MathUtils.lerp(12, 4, dive) + pullBack,
+      pointer.current.x * 1.6 + driftX,
+      THREE.MathUtils.lerp(2.8, -32, dive) + pointer.current.y * 0.5 + driftY,
+      THREE.MathUtils.lerp(12, 4, dive) + pullBack + driftZ,
     )
     // The aim point rides the same curve as the camera. On its own schedule
     // it outran the descent: the lens tipped down while the camera was still
     // at hero height, pushing the horizon up and flattening the shot.
+    // The aim point carries the same drift, so the camera translates
+    // without the view swinging around.
     camera.lookAt(
-      pointer.current.x * 0.8,
-      THREE.MathUtils.lerp(1.5, -40, dive),
-      THREE.MathUtils.lerp(-20, -10, dive),
+      pointer.current.x * 0.8 + driftX,
+      THREE.MathUtils.lerp(1.5, -40, dive) + driftY,
+      THREE.MathUtils.lerp(-20, -10, dive) + driftZ,
     )
 
     // Both looks are driven by where the camera actually is, not by scroll
@@ -394,7 +410,8 @@ export default function Scene({
       {/* cool bounce so the shadowed side of an otter never goes flat black */}
       <directionalLight position={[-7, 3, 6]} intensity={0.5} color="#7fa8ff" />
 
-      <Sky spaceRef={space} underRef={below} />
+      <Sky spaceRef={space} underRef={below} afterRef={after} />
+      <Constellations afterRef={after} />
       <Water
         spaceRef={space}
         submergedRef={below}
