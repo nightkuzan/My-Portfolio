@@ -104,9 +104,10 @@ export const en = {
       kind: 'Contract · Hybrid',
       period: 'Jul 2025 — Oct 2025',
       points: [
-        'Built back-end services in Go and TypeScript for internal business systems.',
-        'Modelled and queried the database through Prisma ORM.',
+        'CORTEX Hospital — a cloud-based hospital management system. Added features to the existing Reception module and fixed defects in it.',
         'Implemented reporting and document generation with Jasper Reports.',
+        'Developed back-end services in Go and TypeScript.',
+        'Modelled and queried the database through Prisma ORM.',
       ],
     },
     victoryEarly: {
