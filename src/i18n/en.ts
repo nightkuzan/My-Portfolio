@@ -114,7 +114,6 @@ export const en = {
       kind: 'Freelance · Remote',
       period: 'Mar 2024 — Jun 2025',
       points: [
-        'A-MED CARE PLUS — hospital information system as a PWA: patient profile management, administrator management, and a middleware layer talking to external APIs.',
         'Kepler — PWA with a dynamic news feed, personalised profile feed, secure login and configurable settings.',
       ],
     },
@@ -126,6 +125,15 @@ export const en = {
         'Developed features for a Flutter mobile application and internal software solutions.',
         'Worked a full SDLC inside a real engineering team, following Clean Architecture and a modular project structure.',
         'The internship was extended into a contract.',
+      ],
+    },
+    victoryFirst: {
+      title: 'Full Stack Developer',
+      kind: 'Freelance · Remote',
+      period: 'Jan 2023 — Mar 2023',
+      points: [
+        'A-MED CARE PLUS — hospital information system as a PWA: patient profile management, administrator management, and a middleware layer talking to external APIs.',
+        'Digital Government platform — administrator and case management for a Thai Digital Government Agency platform, with real-time notifications over Socket.io.',
       ],
     },
   },
